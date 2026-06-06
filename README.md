@@ -1,4 +1,3 @@
-# cross-seed-multi-disk-hardlink-guide
 # Cross-Seed Multi-Disk Hardlink Setup
 
 Configuração validada de Cross-Seed com Docker, qBittorrent, Prowlarr, Radarr e Sonarr utilizando múltiplos discos físicos e hardlinks.
