@@ -1,0 +1,5 @@
+cross-seed.db
+torrent_cache/
+logs/
+cross-seeds/
+*.log
