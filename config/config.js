@@ -3,21 +3,16 @@ module.exports = {
     "/media/filmes",
     "/media/adulto",
     "/series/series",
-    "/series/animes"
+    "/series/animes",
   ],
 
-  linkDirs: [
-    "/media/links",
-    "/series/links"
-  ],
+  linkDirs: ["/media/links", "/series/links"],
 
   linkType: "hardlink",
 
   matchMode: "flexible",
 
-  torrentClients: [
-    "qbittorrent:http://usuario:senha@qbittorrent:8081"
-  ],
+  torrentClients: ["qbittorrent:http://usuario:senha@qbittorrent:8081"],
 
   action: "inject",
 
@@ -29,5 +24,7 @@ module.exports = {
 
   excludeOlder: "30 days",
 
-  delay: 120
+  torznab: ["http://PROWLARR_IP:9696/INDEXER_ID/api?apikey=PROWLARR_API_KEY"],
+
+  delay: 120,
 };
