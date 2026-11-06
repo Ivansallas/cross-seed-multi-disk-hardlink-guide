@@ -88,7 +88,7 @@ docker run -d \
   -v /mnt/media/cross-seed/config:/config \
   -v /mnt/media:/media \
   -v /mnt/series:/series \
-  ghcr.io/cross-seed/cross-seed:latest \
+  ghcr.io/cross-seed/cross-seed:6.13.7 \
   daemon
 ```
 
@@ -103,39 +103,61 @@ Arquivo:
 ```
 
 ```js
+// cross-seed v6.13.7 — configuração em produção (segredos substituídos por placeholders)
 module.exports = {
   dataDirs: [
     "/media/filmes",
     "/media/adulto",
     "/series/series",
-    "/series/animes"
+    "/series/animes",
   ],
 
-  linkDirs: [
-    "/media/links",
-    "/series/links"
-  ],
+  // Um linkDir por disco físico (hardlink não atravessa filesystems → EXDEV)
+  linkDirs: ["/media/links", "/series/links"],
 
   linkType: "hardlink",
 
-  matchMode: "flexible",
+  // partial: aceita torrents em que faltam só arquivos pequenos (nfo, legendas);
+  // o que faltar é baixado e o torrent retomado automaticamente.
+  matchMode: "partial",
 
-  torrentClients: [
-    "qbittorrent:http://usuario:senha@qbittorrent:8081"
-  ],
+  torrentClients: ["qbittorrent:http://USUARIO:SENHA@netflixhome_qbittorrent:8081"],
 
   action: "inject",
 
-  autoResumeMaxDownload: 500,
+  // Retoma sozinho se faltar até 50 MiB (padrão do cross-seed)
+  autoResumeMaxDownload: 52428800,
 
+  // Usa também os torrents que já estão no qBittorrent como fonte
+  useClientTorrents: true,
+
+  // RSS pega lançamentos novos; a busca diária cobre o acervo
+  rssCadence: "15 minutes",
   searchCadence: "1 day",
+  excludeRecentSearch: "3 days",
+  excludeOlder: "2 weeks", // precisa ser 2–5x o excludeRecentSearch
 
-  excludeRecentSearch: "7 days",
-  excludeOlder: "30 days",
+  // IDs dos indexadores no Prowlarr: se um indexador for apagado e recriado,
+  // o ID muda e esta lista precisa ser atualizada.
+  torznab: [
+    "http://172.17.0.1:9696/ID_INDEXADOR_1/api?apikey=PROWLARR_API_KEY",
+    "http://172.17.0.1:9696/ID_INDEXADOR_2/api?apikey=PROWLARR_API_KEY",
+  ],
 
-  delay: 120
+  delay: 120,
 };
 ```
+
+---
+
+# Otimizações
+
+Veja [docs/06-otimizacoes.md](docs/06-otimizacoes.md):
+
+* semeadura sem limite por categoria no qBittorrent 5.3;
+* busca imediata ao terminar um download;
+* RSS e `matchMode: "partial"`;
+* limpeza de links órfãos.
 
 ---
 
@@ -252,6 +274,8 @@ Três caminhos apontando para o mesmo arquivo físico.
 * Hardlinks validados
 * EXDEV resolvido
 * Injeção automática ativa
+* RSS a cada 15 min e busca ao terminar download
+* Semeadura sem limite nas categorias do cross-seed
 * Ambiente Docker estável
 * Multi-disco operacional
 
